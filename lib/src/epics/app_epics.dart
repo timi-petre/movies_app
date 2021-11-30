@@ -1,6 +1,6 @@
-import 'package:movies_app/actions/get_movies.dart';
-import 'package:movies_app/data/movies_api.dart';
-import 'package:movies_app/models/app_state.dart';
+import 'package:movies_app/src/actions/get_movies.dart';
+import 'package:movies_app/src/data/movies_api.dart';
+import 'package:movies_app/src/models/app_state.dart';
 import 'package:redux_epics/redux_epics.dart';
 import 'package:rxdart/rxdart.dart';
 
