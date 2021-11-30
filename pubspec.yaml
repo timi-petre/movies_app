@@ -13,6 +13,12 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^0.13.4
+  redux: ^5.0.0
+  redux_epics: ^0.15.0
+  flutter_redux: ^0.8.2
+
+dependency_overrides:
+  rxdart: ^0.27.3
 
 dev_dependencies:
   flutter_lints: ^1.0.0
