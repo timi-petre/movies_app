@@ -8,13 +8,12 @@ class MoviesApi {
       'api',
       'v2',
       'list_movies.json'
-    ], queryParameters: {
-      'limit': '50',
+    ], queryParameters: <String, String>{
       'page': '$page',
-      'sort_by': 'year',
+      'limit': '20',
+      'sort_by': 'rating',
       'order_by': 'desc',
-      'quality': '720p',
-      'minimum_rating': '7'
+      'rating': '0,10',
     });
 
     final Response response = await get(uri);
@@ -22,6 +21,7 @@ class MoviesApi {
       final Map<String, dynamic> body = jsonDecode(response.body);
       final Map<String, dynamic> data = body['data'] as Map<String, dynamic>;
       final List<dynamic> movies = data['movies'];
+
       return movies.map((dynamic movie) => movie['title'] as String).toList();
     } else {
       return throw StateError('Error fetching the movies.');

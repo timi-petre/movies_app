@@ -2,7 +2,7 @@ import 'package:movies_app/src/actions/get_movies.dart';
 import 'package:movies_app/src/models/app_state.dart';
 import 'package:redux/redux.dart';
 
-Reducer<AppState> appReducer = combineReducers([
+Reducer<AppState> reducer = combineReducers<AppState>(<Reducer<AppState>>[
   TypedReducer<AppState, GetMovies>(_getMovies),
   TypedReducer<AppState, GetMoviesSuccessful>(_getMoviesSuccessful),
   TypedReducer<AppState, GetMoviesError>(_getMoviesError),
@@ -20,9 +20,9 @@ AppState _getMoviesSuccessful(AppState state, GetMoviesSuccessful action) {
     ...state.titles,
   ];
   return state.copyWith(
-    isLoading: false,
-    page: state.page + 1,
     titles: titles,
+    page: state.page + 1,
+    isLoading: false,
   );
 }
 

@@ -1,25 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData.dark(),
-      home: const MyHomePage(title: 'Movies App'),
-    );
-  }
-}
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:movies_app/src/actions/get_movies.dart';
+import 'package:movies_app/src/container/is_loading_container.dart';
+import 'package:movies_app/src/container/titles_container.dart';
+import 'package:movies_app/src/models/app_state.dart';
+import 'package:redux/redux.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -32,65 +17,41 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final ScrollController _controller = ScrollController();
-  final List<String> _titles = <String>[];
-  bool _isLoading = false;
-  int _page = 1;
 
   @override
   void initState() {
     super.initState();
-    _getMovies();
+    final Store<AppState> store =
+        StoreProvider.of<AppState>(context, listen: false);
 
-    _controller.addListener(() {
-      if (!_isLoading &&
-          _controller.offset > _controller.position.maxScrollExtent - MediaQuery.of(context).size.height) {
-        _page++;
-        _getMovies();
-      }
-    });
+    store.dispatch(GetMovies(onResult));
+
+    _controller.addListener(_onScroll);
   }
 
-  Future<void> _getMovies() async {
-    final Uri uri = Uri(
-      scheme: 'https',
-      host: 'yts.mx',
-      pathSegments: <String>['api', 'v2', 'list_movies.json'],
-      queryParameters: <String, dynamic>{
-        'page': '$_page',
-        'limit': '50',
-      },
-    );
-    setState(() => _isLoading = true);
-    final Response response = await get(uri);
+  void _onScroll() {
+    final double currentPosition = _controller.offset;
+    final double maxPosition = _controller.position.maxScrollExtent;
 
-    if (response.statusCode != 200) {
-      showDialog(
+    final Store<AppState> store = StoreProvider.of<AppState>(context);
+
+    if (!store.state.isLoading && currentPosition > maxPosition - 200) {
+      store.dispatch(GetMovies(onResult));
+    }
+  }
+
+  void onResult(dynamic action) {
+    if (action is GetMoviesError) {
+      showDialog<void>(
         context: context,
-        builder: (BuildContext context) {
+        builder: (context) {
           return AlertDialog(
-            actions: [
-              TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Ok'))
-            ],
-            title: const Text('Error'),
+            title: const Text('Error getting movies'),
+            content: Text('${action.error}'),
           );
         },
       );
-      return;
     }
-    final Map<String, dynamic> body = jsonDecode(response.body) as Map<String, dynamic>;
-    final Map<String, dynamic> movies = body['data'] as Map<String, dynamic>;
-    final List<dynamic> titles = movies['movies'] as List<dynamic>;
-
-    setState(() {
-      for (final movie in titles) {
-        _titles.add(movie['title']);
-        _isLoading = false;
-      }
-    });
   }
 
   @override
@@ -105,19 +66,30 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
         actions: <Widget>[
-          if (_isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
+          IsLoadingContainer(
+            builder: (BuildContext context, bool isLoading) {
+              if (!isLoading) {
+                return const SizedBox.shrink();
+              }
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            },
+          ),
         ],
       ),
-      body: ListView.builder(
-        controller: _controller,
-        itemCount: _titles.length,
-        itemBuilder: (BuildContext context, int index) {
-          final String title = _titles[index];
-          return ListTile(
-            title: Text(title),
+      body: TitlesContainer(
+        builder: (BuildContext context, List<String> titles) {
+          return ListView.builder(
+            controller: _controller,
+            itemCount: titles.length,
+            itemBuilder: (BuildContext context, int index) {
+              final String title = titles[index];
+
+              return ListTile(
+                title: Text(title),
+              );
+            },
           );
         },
       ),
