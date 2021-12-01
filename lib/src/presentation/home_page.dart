@@ -35,7 +35,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final Store<AppState> store = StoreProvider.of<AppState>(context);
 
-    if (!store.state.isLoading && currentPosition > maxPosition - 200) {
+    if (!store.state.isLoading &&
+        currentPosition > maxPosition - MediaQuery.of(context).size.height) {
       store.dispatch(GetMovies(onResult));
     }
   }
