@@ -15,9 +15,10 @@ class AppEpics {
   Stream<dynamic> getMovies(
       Stream<GetMovies> actions, EpicStore<AppState> store) {
     return actions //
+        //unde tipul este de GetMovies
         .flatMap((GetMovies action) => Stream<void>.value(null)
-            .asyncMap((_) => _api.getMovies(store.state.page))
-            .map<Object>((List<String> titles) => GetMoviesSuccessful(titles))
+            .asyncMap((_) => _api.getMovies(store.state.page)) //cheama API , asteapta rezultatul
+            .map<Object>((List<String> titles) => GetMoviesSuccessful(titles)) //daca api returneaza un list de string
             .onErrorReturnWith((error, stackTrace) => GetMoviesError(error))
             .doOnData(action.result));
   }

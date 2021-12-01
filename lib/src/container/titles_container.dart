@@ -5,12 +5,16 @@ import 'package:redux/redux.dart';
 
 class TitlesContainer extends StatelessWidget {
   const TitlesContainer({Key? key, required this.builder}) : super(key: key);
+
   final ViewModelBuilder<List<String>> builder;
+
   @override
   Widget build(BuildContext context) {
     return StoreConnector<AppState, List<String>>(
-      converter: (Store<AppState> store) => store.state.titles,
-      builder: builder,
+      //                  state-ul aplicatiei, ce vrem sa scoatem din el
+      converter: (Store<AppState> store) =>
+          store.state.titles, //converter: extragem din state o anumita parte
+      builder: builder, //e apelat de fiecare ccare data se schimba titles
     );
   }
 }

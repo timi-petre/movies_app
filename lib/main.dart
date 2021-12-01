@@ -23,6 +23,7 @@ void main() {
       EpicMiddleware<AppState>(epics.epics),
     ],
   );
+  //store.dispatch(const GetMovies(1)); emitem o actiune
   runApp(MyApp(store: store));
 }
 
